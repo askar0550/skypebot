@@ -1,0 +1,9 @@
+npm install dotenv
+
+
+//////////////
+//useful links
+
+// design adaptive card template
+https://adaptivecards.io/designer
+
