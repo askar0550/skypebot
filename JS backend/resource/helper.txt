@@ -1,4 +1,12 @@
 npm install dotenv
+npm install pg
+npm install botbuilder-dialogs
+npm i adaptivecards
+npm install nodemon
+npm install json
+npm install restify
+npm install botframework-config
+
 
 
 //////////////
