@@ -4,7 +4,7 @@
 
 CREATE TABLE app_test.question
 (
-    id integer NOT NULL DEFAULT nextval('app_test.question_id_seq'::regclass),
+    id serial,
     questionnr integer,
     question text COLLATE pg_catalog."default",
     ansa text COLLATE pg_catalog."default",

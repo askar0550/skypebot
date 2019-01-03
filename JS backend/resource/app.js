@@ -50,6 +50,57 @@ exports.getQ = async function(x) {
     return formatqqq;
 };
 
+exports.postC = async function(x) {
+    // async function getQ(x) {
+    const { Pool } = require('pg');
+    const pool = new Pool({
+        user: 'app_user',
+        host: 'localhost',
+        database: 'appdata',
+        password: '123456',
+        port: 5432
+    });
+
+    const client = await pool.connect();
+
+    const query = {
+        text: 'insert into app_test.complaints (convid, username, userid, tmstamp, qid, complaint) VALUES ($1, $2, $3, $4, $5, $6)',
+        values: [x['convid'], x['username'], x['userid'], x['tmstamp'], x['qid'], x['complaint']]
+    };
+    await client.query(query)
+        .then(res => console.log(res.rows[0]))
+        .catch(e => console.error(e.stack));
+    return x['username'];
+};
+
+exports.getDateTime = function() {
+    var now = new Date();
+    var year = now.getFullYear();
+    var month = now.getMonth() + 1;
+    var day = now.getDate();
+    var hour = now.getHours();
+    var minute = now.getMinutes();
+    var second = now.getSeconds();
+    if (month.toString().length === 1) {
+        month = '0' + month;
+    }
+    if (day.toString().length === 1) {
+        day = '0' + day;
+    }
+    if (hour.toString().length === 1) {
+        hour = '0' + hour;
+    }
+    if (minute.toString().length === 1) {
+        minute = '0' + minute;
+    }
+    if (second.toString().length === 1) {
+        second = '0' + second;
+    }
+    var dateTime = year + '/' + month + '/' + day + ' ' + hour + ':' + minute + ':' + second;
+    // console.log(dateTime);
+    return dateTime;
+};
+
 function switchLtoN(x) {
     var y = x.split('');
     for (var k = 0; k < y.length; k++) {

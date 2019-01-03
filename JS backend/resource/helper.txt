@@ -1,8 +1,11 @@
+npm install -g windows-build-tools
+npm install -g yo generator-botbuilder
+npm install -g botbuilder
 npm install dotenv
 npm install pg
 npm install botbuilder-dialogs
 npm i adaptivecards
-npm install nodemon
+npm install -g nodemon
 npm install json
 npm install restify
 npm install botframework-config

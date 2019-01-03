@@ -168,7 +168,10 @@ exports.triviablocB = function(arrayy) {
                     'actions': [
                         {
                             'type': 'Action.Submit',
-                            'title': 'Submit'
+                            'title': 'Submit',
+                            'data': {
+                                'qid': qnumber
+                            }
                         }
                     ],
                     '$schema': 'http://adaptivecards.io/schemas/adaptive-card.json'
