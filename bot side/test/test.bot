@@ -1,15 +1,16 @@
 {
     "name": "test",
+    "description": "",
     "services": [
         {
             "type": "endpoint",
-            "name": "development",
             "endpoint": "http://localhost:3978/api/messages",
-            "appId": "",
-            "appPassword": "",
-            "id": "1"
+            "id": "96",
+            "name": "development"
         }
     ],
     "padlock": "",
-    "version": "2.0"
+    "version": "2.0",
+    "path": "D:\\skype bot aws\\bot side\\test\\test.bot",
+    "overrides": null
 }

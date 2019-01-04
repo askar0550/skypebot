@@ -1,13 +1,21 @@
 
-exports.triviablocA = function (arrayy) {
-
+// main question card
+exports.triviablocA = function(arrayy, fqid) {
     var id = arrayy['id'];
     var question = arrayy['question'];
-    var answers = arrayy['answers'];
-    var result = arrayy['result'];
-    var exp = arrayy['exp'];
-
+    var answers = arrayy['panswers'];
+    var result = arrayy['answer'];
+    var exp = arrayy['explanation'];
     var formatPosAns = [];
+    var formatchoises = [];
+
+    // is multichoise?
+    var multich = false;
+    if (result.length > 1) {
+        multich = true;
+    };
+
+    // multiple possible answers
     for (var i = 0; i < answers.length; i++) {
         formatPosAns.push(
             {
@@ -15,32 +23,23 @@ exports.triviablocA = function (arrayy) {
                 'horizontalAlignment': 'Left',
                 'spacing': 'Small',
                 'separator': true,
-                // 'height': 'stretch',
                 'size': 'Medium',
                 'text': i + 1 + ': ' + answers[i],
                 'wrap': true,
                 'id': (i + 1).toString()
             });
-    }
+    };
 
-    var formatchoises = [];
+    // multichoise template
     for (var j = 0; j < answers.length; j++) {
         formatchoises.push(
             {
                 'title': (j + 1).toString(),
                 'value': (j + 1).toString()
             });
-    }
+    };
 
-    // console.log(formatchoises);
-
-    var multich = false;
-    if (result.length > 1) {
-        multich = true;
-    }
-
-    // console.log(id, question, arrofans, rans, exp);
-    // function activecards() {
+    // the adaptive card template
     var theCard =
     {
         '$schema': 'http://adaptivecards.io/schemas/adaptive-card.json',
@@ -110,22 +109,24 @@ exports.triviablocA = function (arrayy) {
                 {
                     'rightResponse': result,
                     'explanation': exp,
-                    'questionnr': id
+                    'questionnr': id,
+                    'fromQuestion': fqid
                 }
             }
         ]
     };
-    // console.log(formatchoises, multich);
-    // console.log(theCard);
     return theCard;
 };
 
+// response card
 exports.triviablocB = function(arrayy) {
     var slcted = arrayy['thechoise'].split(',');
     var answer = arrayy['rightResponse'];
     var qnumber = arrayy['questionnr'];
     var explanation = arrayy['explanation'];
-    // console.log(slcted, answer);
+    var origquestion = arrayy['fromQuestion'];
+
+    // the adaptive card template
     var theCard =
     {
         '$schema': 'http://adaptivecards.io/schemas/adaptive-card.json',
@@ -170,7 +171,8 @@ exports.triviablocB = function(arrayy) {
                             'type': 'Action.Submit',
                             'title': 'Submit',
                             'data': {
-                                'qid': qnumber
+                                'qid': qnumber,
+                                'fqid': origquestion
                             }
                         }
                     ],

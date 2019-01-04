@@ -1,89 +1,104 @@
-// Copyright (c) Microsoft Corporation. All rights reserved.
-// Licensed under the MIT License.
 
-const { AttachmentLayoutTypes, ActivityTypes, CardFactory } = require('botbuilder');
-// const { ChoicePrompt, DialogSet, DialogTurnStatus, ListStyle } = require('botbuilder-dialogs');
+const { CardFactory } = require('botbuilder'); // AttachmentLayoutTypes, ActivityTypes,
 var test = require('./resource/app.js');
 var adpcd = require('./resource/trivia.js');
-// var sammple = require('./resource/simple_sample.json');
 
 class MyBot {
-    /**
-     *
-     * @param {TurnContext} on turn context object.
-     */
-	
     async onTurn(turnContext) {
-        // See https://aka.ms/about-bot-activity-message to learn more about the message and other activity types.
-        // if (turnContext.activity.type === ActivityTypes.Message) {
         var conact = turnContext.activity;
-        // console.log(turnContext.activity);
         switch (true) {
-        case conact.text === 'random':
-            var rannr = Math.floor(Math.random() * (300 - 1 + 1) + 1);
-            await test.getQ(rannr) // 201
-                .then(async function(result) {
-                    // console.log(CardFactory.adaptiveCard(adpcd.trivia(result)));
-                    await turnContext.sendActivity({
-                        attachments: [
-                            CardFactory.adaptiveCard(adpcd.triviablocA(result))
-                        ]
-                    });
-                })
-                .catch(function(error) {
-                    console.error(error);
-                });
-            break;
-        case (Number(conact.text) > 0 && Number(conact.text) < 301):
-            await test.getQ(conact.text) // 201
-                .then(async function(result) {
-                    // console.log(CardFactory.adaptiveCard(adpcd.trivia(result)));
-                    await turnContext.sendActivity({
-                        attachments: [
-                            CardFactory.adaptiveCard(adpcd.triviablocA(result))
-                        ]
-                    });
-                })
-                .catch(function(error) {
-                    console.error(error);
-                });
-            // console.log(turnContext.sendActivity);
-            break;
-        case (conact.hasOwnProperty('value') && conact.value.hasOwnProperty('rightResponse')):
-            // console.log(conact);
+        /// return random or number question card; post question fired
+        case conact.text === 'random' || (Number(conact.text) > 0 && Number(conact.text) < 301):
+
+            // check if random or number
+            var qnumber;
+            if (conact.text === 'random') {
+                qnumber = Math.floor(Math.random() * (300 - 1 + 1) + 1);
+            } else {
+                qnumber = conact.text;
+            };
+
+            // Insert question was fired
+            var invalueFiredQ =
+            {
+                'convid': conact.conversation['id'],
+                'qid': qnumber,
+                'tmstamp': new Date()
+            };
+            var fqid = await dbfire('firedQ', invalueFiredQ);
+
+            // Return question card
             await turnContext.sendActivity({
                 attachments: [
-                    CardFactory.adaptiveCard(adpcd.triviablocB(conact.value))
+                    CardFactory.adaptiveCard(adpcd.triviablocA(await dbfire('getQ', qnumber), fqid))
                 ]
             });
+            /*
+            /////// HERE TO ADD AWAIT FUNCTION TO RETURN THE ANSWERS IF EXISTS
+            ////// ELSE WAIT MORE
+            */
             break;
-        case (conact.hasOwnProperty('value') && conact.value.hasOwnProperty('wrongQ')):
-            var invalue =
+
+        /// return answer card
+        case (conact.value.hasOwnProperty('rightResponse')):
+            var invalueUserAnswer =
+            {
+                'convid': conact.conversation['id'],
+                'username': conact.from['name'],
+                'userid': conact.from['id'],
+                'qid': conact.value['questionnr'],
+                'fqid': conact.value['fromQuestion'],
+                'chvalues': conact.value['thechoise'].toString()
+            };
+            await dbfire('firedA', invalueUserAnswer);
+            break;
+
+        /// post question complaint
+        case (conact.value.hasOwnProperty('wrongQ')):
+            var invalueComplaint =
                 {
                     'convid': conact.conversation['id'],
                     'username': conact.from['name'],
                     'userid': conact.from['id'],
-                    'tmstamp': test.getDateTime(), // (new Date()).toISOString().slice(0, 10).replace(/-/g, ''),
+                    'tmstamp': new Date(),
                     'qid': conact.value['qid'],
-                    'complaint': conact.value['wrongQ']
+                    'complaint': 'Fired Question: ' + conact.value['fqid'] + '; Message: ' + conact.value['wrongQ']
                 };
-            // console.log(invalue);
-            await test.postC(invalue)
-                .then(async function(result) {
-                    // console.log(result);
-                    await turnContext.sendActivity('Thank you ' + result + ' for your feedback!');
-                    
-                })
-                .catch(function(error) {
-                    console.error(error.stack);
-                });
-            
+            var resultingUser = await dbfire('postC', invalueComplaint);
+
+            // bot reply OK
+            await turnContext.sendActivity('Thank you ' + resultingUser + ' for your feedback!');
             break;
 
         default:
             await turnContext.sendActivity(`[${ turnContext.activity.type } event detected]`);
         };
     }
-}
+};
+
+// database functions
+async function dbfire(f, x) {
+    var rresult;
+    var ff;
+
+    // case function -ugly but better than eval
+    switch (f) {
+    case 'getQ': ff = test.getQ(x); break;
+    case 'firedQ': ff = test.firedQ(x); break;
+    case 'postC': ff = test.postC(x); break;
+    case 'firedA': ff = test.firedA(x); break;
+    default: console.log('Not a function!');
+    };
+
+    // actual function -uses promise
+    await ff
+        .then(async function(result) {
+            rresult = result;
+        })
+        .catch(function(error) {
+            console.error(error);
+        });
+    return rresult;
+};
 
 module.exports.MyBot = MyBot;
