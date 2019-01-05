@@ -8,6 +8,7 @@ CREATE TABLE app_test.fired_question
 	convid text COLLATE pg_catalog."default",
     qid integer,
 	tmstamp timestamp,
+	complete boolean,
     PRIMARY KEY (id)
 )
 WITH (

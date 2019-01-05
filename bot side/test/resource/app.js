@@ -38,13 +38,13 @@ exports.postC = async function(x) {
     return x['username'];
 };
 
-// insert complaint
+// insert fired question
 exports.firedQ = async function(x) {
     // db actions
     var newstamp = new Date();
     const qtextInsert = {
-        text: 'insert into app_test.fired_question (convid, qid, tmstamp) VALUES ($1, $2, $3)',
-        values: [x['convid'], x['qid'], newstamp]
+        text: 'insert into app_test.fired_question (convid, qid, tmstamp, complete) VALUES ($1, $2, $3, $4)',
+        values: [x['convid'], x['qid'], newstamp, false]
     };
     await submitQuery(qtextInsert);
 
@@ -53,7 +53,7 @@ exports.firedQ = async function(x) {
         values: [x['convid'], x['qid'], newstamp]
     };
     var qans = await submitQuery(qtextSelect);
-    // console.log(qans);
+    // console.log(qans.rows[0]['id']);
 
     return qans.rows[0]['id'];
 };
@@ -74,6 +74,17 @@ exports.firedA = async function(x) {
         };
         await submitQuery(qtextInsert);
     };
+};
+
+// select answer to question
+exports.returnAC = async function (x) {
+    // db actions
+    const qtextSelect = {
+        text: 'select complete from app_test.fired_question where convid = $1 and qid = $2 and tmstamp = $3',
+        values: [x['convid'], x['qid'], x['tmstamp']]
+    };
+    var checker = await submitQuery(qtextSelect);
+    return checker;
 };
 
 // database query sender
