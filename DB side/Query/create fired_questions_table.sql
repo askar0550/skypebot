@@ -21,6 +21,7 @@ ALTER TABLE app_test.fired_question
 
 GRANT SELECT ON TABLE app_test.fired_question TO app_user;
 GRANT INSERT ON TABLE app_test.fired_question TO app_user;
+GRANT UPDATE ON TABLE app_test.fired_question TO app_user;
 
 GRANT ALL ON TABLE app_test.fired_question TO postgres;
 

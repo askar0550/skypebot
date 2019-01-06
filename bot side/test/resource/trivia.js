@@ -119,12 +119,13 @@ exports.triviablocA = function(arrayy, fqid) {
 };
 
 // response card
-exports.triviablocB = function(arrayy) {
-    var slcted = arrayy['thechoise'].split(',');
-    var answer = arrayy['rightResponse'];
-    var qnumber = arrayy['questionnr'];
-    var explanation = arrayy['explanation'];
-    var origquestion = arrayy['fromQuestion'];
+exports.triviablocB = function (arrayy, cardDetails) {
+    console.log(arrayy, cardDetails);
+    var slcted = arrayy['qid'].split(',');
+    var answer = arrayy['qid'].split(',');
+    var qnumber = arrayy['qid'];
+    var explanation = arrayy['convid'];
+    var origquestion = arrayy['convid'];
 
     // the adaptive card template
     var theCard =
