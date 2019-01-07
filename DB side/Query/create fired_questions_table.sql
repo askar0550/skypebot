@@ -1,6 +1,6 @@
 -- Table: app_test.fired_question
 
--- DROP TABLE app_test.fired_question;
+DROP TABLE IF EXISTS app_test.fired_question;
 
 CREATE TABLE app_test.fired_question
 (
