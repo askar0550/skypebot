@@ -1,6 +1,6 @@
 
 // serlect question details
-exports.getQ = async function (x) {
+exports.getQ = async function(x) {
     // check if any open questions
     var anyopen = await exports.returnUNC();
     var responseRowObject = {};
@@ -45,10 +45,16 @@ exports.firedQ = async function(x) {
     // db actions
     var newstamp = new Date();
     const qtextInsert = {
-        text: 'insert into app_test.fired_question (convid, qid, tmstamp, complete) VALUES ($1, $2, $3, $4)',
+        text: 'insert into app_test.fired_question (convid, qid, tmstamp, complete) VALUES ($1, $2, $3, $4);',
         values: [x['convid'], x['qid'], newstamp, false]
     };
     await submitQuery(qtextInsert);
+
+    const qtextUpdate = {
+        text: 'update app_test.question set firedcounter = firedcounter + 1 where questionnr = $1;',
+        values: [x['qid']]
+    };
+    await submitQuery(qtextUpdate);
 
     const qtextSelect = {
         text: 'select id from app_test.fired_question where convid = $1 and qid = $2 and tmstamp = $3',
@@ -59,15 +65,46 @@ exports.firedQ = async function(x) {
     return qans.rows[0]['id'];
 };
 
+// select fired question stats
+exports.returnFQS = async function(x) {
+    // answers counter
+    const qtextSelectQstats = {
+        text: 'select firedcounter, ansokcounter, anstoutcounter from app_test.question where questionnr = $1;',
+        values: [x['qid']]
+    };
+    var qstats = await submitQuery(qtextSelectQstats);
+
+    // answers counter
+    const qtextSelectAnsnumber = {
+        text: 'select count(fqid) as cnter from app_test.fired_answer where fqid = $1;',
+        values: [x['fqid']]
+    };
+    var ansnuimber = await submitQuery(qtextSelectAnsnumber);
+
+    // number of right answers
+    const qtextSelectchoises = {
+        text: 'select choises from app_test.fired_answer where fqid = $1;',
+        values: [x['fqid']]
+    };
+    var qchoises = await submitQuery(qtextSelectchoises);
+    var choisesArray = [];
+    for (var i = 0; i < qchoises.rows.length; i++) {
+        var temp = qchoises.rows[i]['choises'];
+        if (temp === x['theanswer'].toString()) {
+            choisesArray.push(temp);
+        };
+    };
+    return [Number(ansnuimber.rows[0]['cnter']), choisesArray.length, qstats.rows[0]];
+};
+
 // insert user answer if it does not exists
 exports.firedA = async function(x) {
-    // db actions
     const qtextSelect = {
         text: 'select id from app_test.fired_answer where convid = $1 and username = $2 and userid = $3 and fqid = $4',
         values: [x['convid'], x['username'], x['userid'], x['fqid']]
     };
-    var checker = await submitQuery(qtextSelect);
-    if (!checker.rowCount) {
+    var checkefa = await submitQuery(qtextSelect);
+    if (!checkefa.rowCount) {
         const qtextInsert = {
             text: 'insert into app_test.fired_answer (convid, username, userid, qid, fqid, choises) VALUES ($1, $2, $3, $4, $5, $6)',
             values: [x['convid'], x['username'], x['userid'], x['qid'], x['fqid'], x['chvalues']]
@@ -75,14 +112,23 @@ exports.firedA = async function(x) {
         await submitQuery(qtextInsert);
         var ismarked = await exports.returnQC(x['fqid']);
         if (!ismarked.rows[0]['complete']) {
-            await exports.completeQ(x['fqid']);
+            await exports.completeQ([x['fqid'], '']);
         };
-        
+
+        // check if is the right answer
+        var checkra = (x['rightResponse'].sort().toString() === x['formatedchvalues'].toString());
+        if (checkra) {
+            const qtextUpdate = {
+                text: 'update app_test.question set ansokcounter = ansokcounter + 1 where questionnr = $1;',
+                values: [x['qid']]
+            };
+            await submitQuery(qtextUpdate);
+        }
     };
 };
 
 // select question completion
-exports.returnQC = async function (x) {
+exports.returnQC = async function(x) {
     // db actions
     const qtextSelect = {
         text: 'select complete from app_test.fired_question where id = $1 ',
@@ -104,13 +150,20 @@ exports.returnUNC = async function() {
 };
 
 // complete  question
-exports.completeQ = async function (x) {
+exports.completeQ = async function(x) {
     // db actions
-    const qtextSelect = {
+    const qtextUpdateFQ = {
         text: 'update app_test.fired_question set complete = $1 where id = $2',
-        values: [true, x]
+        values: [true, x[0]]
     };
-    var checker = await submitQuery(qtextSelect);
+    await submitQuery(qtextUpdateFQ);
+    if (x[1] === 'timeout') {
+        const qtextUpdateQ = {
+            text: 'update app_test.question set anstoutcounter = anstoutcounter + 1 where questionnr = $1',
+            values: [x[2]]
+        };
+        await submitQuery(qtextUpdateQ);
+    };
 };
 
 // database query sender

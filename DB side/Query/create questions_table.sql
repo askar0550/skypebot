@@ -1,6 +1,6 @@
 -- Table: app_test.question
 
--- DROP TABLE app_test.question;
+DROP TABLE app_test.question;
 
 CREATE TABLE app_test.question
 (
@@ -16,6 +16,9 @@ CREATE TABLE app_test.question
     ansg text COLLATE pg_catalog."default",
     answer text COLLATE pg_catalog."default",
     explanation text COLLATE pg_catalog."default",
+	firedcounter integer default 0,
+	ansOKcounter integer default 0,
+	ansTOUTcounter integer default 0,
     CONSTRAINT question_pkey PRIMARY KEY (id)
 )
 WITH (
