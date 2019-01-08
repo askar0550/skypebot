@@ -11,6 +11,9 @@ class MyBot {
         // first step
         case (conact.membersAdded && conact.membersAdded[0]['name'] === 'Bot'):
             await turnContext.sendActivity('My name is Mark');
+            // console.log(conact.conversation['id']);
+            await test.returnUNCq('con' + conact.conversation['id'].replace('|', '_').split('-').join('_'));
+
             break;
 
         // return random or number question card; post question fired

@@ -166,13 +166,30 @@ exports.completeQ = async function(x) {
     };
 };
 
+// test sql from file
+exports.returnUNCq = async function(x) {
+    var spawn = require('child_process').spawn;
+    var child;
+    child = spawn('powershell.exe', ['powershell', '"..\\..\\\'DB side\'\\\'PS scripts\'\\createSchema.ps1"', x]);
+    child.stdout.on('data', function(data) {
+        console.log('Powershell Data: ' + data);
+    });
+    child.stderr.on('data', function(data) {
+        console.log('Powershell Errors: ' + data);
+    });
+    child.on('exit', function() {
+        console.log('Powershell Script finished');
+    });
+    child.stdin.end();
+};
+
 // database query sender
 async function submitQuery(qset) {
     const { Pool } = require('pg');
     const pool = new Pool({
         user: 'app_user',
         host: 'localhost',
-        database: 'appdata',
+        database: 'db5',
         password: '123456',
         port: 5432
     });
