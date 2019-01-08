@@ -52,6 +52,7 @@ class MyBot {
 
                 // Return answer card
                 const fqs = await dbfire('returnFQS', invalueFiredQ);
+                fqs.push(invalueFiredQ['fqid']);
                 await turnContext.sendActivity({
                     attachments: [
                         CardFactory.adaptiveCard(adpcd.triviablocB(fqs, cardDetails))

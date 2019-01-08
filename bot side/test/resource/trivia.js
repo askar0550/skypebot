@@ -120,7 +120,7 @@ exports.triviablocA = function(arrayy, fqid) {
 
 // response card
 exports.triviablocB = function(x, cardDetails) {
-    console.log(x);
+    // console.log(x);
     var slcted = x[0];
     var gir = x[1];
     var answer = cardDetails['answer'];
@@ -275,7 +275,36 @@ exports.triviablocB = function(x, cardDetails) {
                     }
                 ]
             }
+        ],
+        'actions': [
+            {
+                'type': 'Action.ShowCard',
+                'title': 'Mark as wrong',
+                'card': {
+                    'type': 'AdaptiveCard',
+                    'style': 'emphasis',
+                    'body': [
+                        {
+                            'type': 'Input.Text',
+                            'id': 'wrongQ',
+                            'placeholder': 'Add a comment',
+                            'isMultiline': true
+                        }
+                    ],
+                    'actions': [
+                        {
+                            'type': 'Action.Submit',
+                            'title': 'Submit',
+                            'data': {
+                                'qid': qnumber,
+                                'fqid': x[3]
+                            }
+                        }
+                    ]
+                }
+            }
         ]
+
     };
     return theCard;
 };
