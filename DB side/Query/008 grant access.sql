@@ -1,6 +1,0 @@
--- USER GRANTS
-GRANT ALL ON SCHEMA :schema_name TO app_user;
----
-GRANT SELECT , INSERT , UPDATE ON ALL TABLES IN SCHEMA app_test TO app_user;
---
-GRANT USAGE, SELECT ON ALL SEQUENCES IN SCHEMA :schema_name TO app_user;
